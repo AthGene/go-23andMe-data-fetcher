@@ -6,11 +6,15 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"google.golang.org/appengine/urlfetch"
+
+	"golang.org/x/net/context"
 )
 
 var baseURL = `https://api.23andme.com/3/marker/`
 
-func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
+func GetTwentyThreeAndMeData(ctx *context.Context, ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
 	var wg sync.WaitGroup
 
 	var accessToken = ttam.Token
@@ -19,7 +23,7 @@ func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
 	for i, RSCode := range ttam.Scope {
 		// time.Sleep(20 * time.Millisecond)
 		wg.Add(1)
-		go getGeneMarker(RSCode, accessToken, &geneMarker[i], &wg)
+		go getGeneMarker(ctx, RSCode, accessToken, &geneMarker[i], &wg)
 	}
 	fmt.Println("Waiting")
 	wg.Wait()
@@ -29,13 +33,13 @@ func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
 	return &geneMarker, nil
 }
 
-func getGeneMarker(RSCode string, accessToken string, geneMarker *GeneMarker, wg *sync.WaitGroup) error {
+func getGeneMarker(ctx *context.Context, RSCode string, accessToken string, geneMarker *GeneMarker, wg *sync.WaitGroup) error {
 	defer wg.Done()
 	var url = baseURL + RSCode
 	attempts := 5
 
 	for i := 0; i < attempts; i++ {
-		err := jsonResponse("GET", url, accessToken, geneMarker)
+		err := jsonResponse(ctx, "GET", url, accessToken, geneMarker)
 		if err == nil {
 			return nil
 		}
@@ -46,8 +50,9 @@ func getGeneMarker(RSCode string, accessToken string, geneMarker *GeneMarker, wg
 	return nil
 }
 
-func jsonResponse(httpMethod string, url string, accessToken string, geneMarker *GeneMarker) error {
-	client := http.Client{Timeout: 2 * time.Second}
+func jsonResponse(ctx *context.Context, httpMethod string, url string, accessToken string, geneMarker *GeneMarker) error {
+
+	client := urlfetch.Client(*ctx)
 	req, err := http.NewRequest(httpMethod, url, nil)
 	if err != nil {
 		return err

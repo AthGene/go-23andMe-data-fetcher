@@ -35,7 +35,7 @@ func HandleDownload(wr http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		geneMarkers, err := GetTwentyThreeAndMeData(&ttam)
+		geneMarkers, err := GetTwentyThreeAndMeData(&ctx, &ttam)
 
 		wrBody, err := json.Marshal(geneMarkers)
 		if err != nil {
