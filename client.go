@@ -10,7 +10,7 @@ import (
 
 var baseURL = `https://api.23andme.com/3/marker/`
 
-func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) *[]GeneMarker {
+func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
 	var wg sync.WaitGroup
 
 	var accessToken = ttam.Token
@@ -26,7 +26,7 @@ func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) *[]GeneMarker {
 
 	fmt.Println("Done")
 
-	return &geneMarker
+	return &geneMarker, nil
 }
 
 func getGeneMarker(RSCode string, accessToken string, geneMarker *GeneMarker, wg *sync.WaitGroup) error {
