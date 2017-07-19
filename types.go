@@ -1,8 +1,9 @@
 package twentythreeandme
 
 type TwentyThreeAndMe struct {
-	Token string   `json:"token"`
-	Scope []string `json:"scope"`
+	Token     string   `json:"token"`
+	Scope     []string `json:"scope"`
+	ProfileId string   `json:"profile_id"`
 }
 
 type GeneMarker struct {
@@ -24,7 +25,7 @@ type Variant struct {
 	End            int      `json:"end"`
 	Allele         string   `json:"allele"`
 	PlatformLabels []string `json:"platform_labels"`
-	Dosage         int      `json:"dosage"`
+	Dosage         float64  `json:"dosage"`
 	IsAssayed      bool     `json:"is_assayed"`
 	IsNoCall       bool     `json:"is_no_call"`
 }

@@ -6,58 +6,75 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/urlfetch"
+
+	"golang.org/x/net/context"
 )
 
-var baseURL = `https://api.23andme.com/3/marker/`
+var baseURL = `https://api.23andme.com/3/profile/`
 
-func GetTwentyThreeAndMeData(ttam *TwentyThreeAndMe) *[]GeneMarker {
+func GetTwentyThreeAndMeData(ctx *context.Context, ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
 	var wg sync.WaitGroup
 
 	var accessToken = ttam.Token
 
 	geneMarker := make([]GeneMarker, len(ttam.Scope))
+
+	baseURL := baseURL + ttam.ProfileId + "/marker/"
+
 	for i, RSCode := range ttam.Scope {
+		url := baseURL + RSCode + "/"
 		// time.Sleep(20 * time.Millisecond)
 		wg.Add(1)
-		go getGeneMarker(RSCode, accessToken, &geneMarker[i], &wg)
+		go getGeneMarker(ctx, url, accessToken, &geneMarker[i], &wg)
 	}
-	fmt.Println("Waiting")
 	wg.Wait()
-
-	fmt.Println("Done")
-
-	return &geneMarker
+	return &geneMarker, nil
 }
 
-func getGeneMarker(RSCode string, accessToken string, geneMarker *GeneMarker, wg *sync.WaitGroup) error {
+func getGeneMarker(ctx *context.Context, url string, accessToken string, geneMarker *GeneMarker, wg *sync.WaitGroup) error {
 	defer wg.Done()
-	var url = baseURL + RSCode
 	attempts := 5
 
 	for i := 0; i < attempts; i++ {
-		err := jsonResponse("GET", url, accessToken, geneMarker)
+		err := jsonResponse(ctx, "GET", url, accessToken, geneMarker)
 		if err == nil {
 			return nil
 		}
 		time.Sleep(1 * time.Second)
-		fmt.Println("Retrying ", i)
+		log.Debugf(*ctx, "Retrying")
 	}
 
 	return nil
 }
 
-func jsonResponse(httpMethod string, url string, accessToken string, geneMarker *GeneMarker) error {
-	client := http.Client{Timeout: 2 * time.Second}
+func jsonResponse(ctx *context.Context, httpMethod string, url string, accessToken string, geneMarker *GeneMarker) error {
+
+	client := urlfetch.Client(*ctx)
 	req, err := http.NewRequest(httpMethod, url, nil)
 	if err != nil {
 		return err
 	}
-
 	req.Header.Add("Authorization", "Bearer "+accessToken)
+
 	response, err := client.Do(req)
 	if err != nil {
 		return err
 	}
+
+	// requestDump, err := httputil.DumpRequest(req, true)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// log.Debugf(*ctx, "Send", string(requestDump))
+
+	// responseDump, err := httputil.DumpResponse(response, true)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// log.Debugf(*ctx, "Received", string(responseDump))
 
 	err = json.NewDecoder(response.Body).Decode(geneMarker)
 	if err != nil {
