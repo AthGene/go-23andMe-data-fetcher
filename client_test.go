@@ -4,13 +4,20 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+
+	"google.golang.org/appengine/aetest"
 )
 
 func Test_getGeneMarker(t *testing.T) {
+	ctx, done, err := aetest.NewContext()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer done()
+
 	var wg sync.WaitGroup
 	geneMarker := &GeneMarker{}
-	err := getGeneMarker("rs1815739", "demo_oauth_token", geneMarker, &wg)
-
+	err = getGeneMarker(&ctx, "rs1815739", "demo_oauth_token", geneMarker, &wg)
 	if err != nil {
 		t.Fatal("Request failed")
 	}
@@ -19,9 +26,15 @@ func Test_getGeneMarker(t *testing.T) {
 }
 
 func Test_GetTwentyThreeAndMeData(t *testing.T) {
+	ctx, done, err := aetest.NewContext()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer done()
 
 	ttam := &TwentyThreeAndMe{
-		Token: "demo_oauth_token",
+		Token:     "d1f1e21826cc9375ae044af4666c9006",
+		ProfileId: "5b28fb2051d8aa5f",
 		Scope: []string{
 			"rs7781370", "rs10048146", "rs1430742", "rs1054627", "rs3755955", "rs1007738",
 			"rs2941740", "rs1038304", "rs1999805", "rs2504063", "rs4870044", "rs7776725",
@@ -51,11 +64,20 @@ func Test_GetTwentyThreeAndMeData(t *testing.T) {
 		},
 	}
 
-	geneMarkers := GetTwentyThreeAndMeData(ttam)
+	_, err = GetTwentyThreeAndMeData(&ctx, ttam)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// for _, geneMarker := range *geneMarkers {
-	// 	fmt.Printf("%#v \n", geneMarker)
+	// 	if &geneMarker != nil {
+	// 		fmt.Printf("RsCode: %v \n", geneMarker.ID)
+	// 		for _, variant := range *geneMarker.Variants {
+	// 			fmt.Printf("%v", variant.Allele)
+	// 		}
+	// 		fmt.Print("\n")
+	// 	}
 	// }
 
-	fmt.Println("Number of gene markers downloaded: ", len(*geneMarkers))
+	// fmt.Println("Number of gene markers downloaded: ", len(*geneMarkers))
 }

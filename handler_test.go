@@ -37,6 +37,7 @@ func Test_HandleDownload(t *testing.T) {
 			"rs11057830", "rs662799", "rs11898505", "rs10876432", "rs9466056", "rs9594759",
 			"rs1021188", "rs3018362", "rs6993813", "rs6469804", "rs4355801", "rs1366594"]
 	}`)
+
 	var body = bytes.NewBuffer(jsonStr)
 	req, err := http.NewRequest("POST", "/", body)
 	if err != nil {
@@ -52,6 +53,3 @@ func Test_HandleDownload(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 }
-
-// rs5934505
-// rs1799990

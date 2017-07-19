@@ -29,8 +29,9 @@ func HandleDownload(wr http.ResponseWriter, req *http.Request) {
 		}
 		var ttam TwentyThreeAndMe
 		err = json.Unmarshal(body, &ttam)
+		// log.Debugf(ctx, "Received json", ttam.Token, ttam.ProfileId, ttam.Scope)
 		if err != nil {
-			log.Errorf(ctx, "Could not convert JSON body to struct", err)
+			log.Errorf(ctx, "Could not unmarshal JSON body", err)
 			http.Error(wr, err.Error(), http.StatusBadRequest)
 			return
 		}
