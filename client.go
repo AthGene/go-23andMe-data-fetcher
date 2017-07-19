@@ -15,6 +15,7 @@ import (
 
 var baseURL = `https://api.23andme.com/3/profile/`
 
+// GetTwentyThreeAndMeData This function downloads the given SNP's concurrently from 23andMe
 func GetTwentyThreeAndMeData(ctx *context.Context, ttam *TwentyThreeAndMe) (*[]GeneMarker, error) {
 	var wg sync.WaitGroup
 
