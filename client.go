@@ -65,18 +65,6 @@ func jsonResponse(ctx *context.Context, httpMethod string, url string, accessTok
 		return err
 	}
 
-	// requestDump, err := httputil.DumpRequest(req, true)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// log.Debugf(*ctx, "Send", string(requestDump))
-
-	// responseDump, err := httputil.DumpResponse(response, true)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// log.Debugf(*ctx, "Received", string(responseDump))
-
 	err = json.NewDecoder(response.Body).Decode(geneMarker)
 	if err != nil {
 		fmt.Println(err)

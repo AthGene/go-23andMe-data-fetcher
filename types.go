@@ -25,7 +25,7 @@ type Variant struct {
 	End            int      `json:"end"`
 	Allele         string   `json:"allele"`
 	PlatformLabels []string `json:"platform_labels"`
-	Dosage         float64  `json:"dosage"`
+	Dosage         float32  `json:"dosage"`
 	IsAssayed      bool     `json:"is_assayed"`
 	IsNoCall       bool     `json:"is_no_call"`
 }
